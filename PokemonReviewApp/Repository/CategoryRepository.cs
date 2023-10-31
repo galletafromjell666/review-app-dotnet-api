@@ -13,22 +13,22 @@ namespace PokemonReviewApp.Repository
         }
         public bool CategoryExists(int categoryId)
         {
-            throw new NotImplementedException();
+            return _context.Categories.Any(c => c.Id == categoryId);
         }
 
         public ICollection<Category> GetCategories()
         {
-            throw new NotImplementedException();
+            return _context.Categories.OrderBy(c => c.Name).ToList();
         }
 
         public Category GetCategory(int id)
         {
-            throw new NotImplementedException();
+            return _context.Categories.Where(c => c.Id == id).FirstOrDefault();
         }
 
         public ICollection<Pokemon> GetPokemonByCategory(int categoryId)
         {
-            throw new NotImplementedException();
+            return _context.PokemonCategories.Where(e =>  e.CategoryId == categoryId).Select(c => c.Pokemon).ToList(); 
         }
     }
 }
