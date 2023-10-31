@@ -27,5 +27,31 @@ namespace PokemonReviewApp.Controllers
 
             return Ok(countries);
         }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(200, Type = typeof(Pokemon))]
+        [ProducesResponseType(400)]
+        public IActionResult GetCountry(int id)
+        {
+            if(!_countryRepository.countryExist(id))
+            {
+                return NotFound();
+            }
+            var country = _mapper.Map<CountryDto>(_countryRepository.GetCountry(id));
+            if (!ModelState.IsValid) { return BadRequest(ModelState); }
+            return Ok(country);
+        }
+
+        [HttpGet("/owners/{ownerId}")]
+        [ProducesResponseType(200, Type = typeof(IEnumerable<Country>))]
+        [ProducesResponseType(400)]
+        public IActionResult GetCountryOfAnOwner(int ownerId)
+        {
+            var country = _mapper.Map<CountryDto>(_countryRepository.GetCountryByOwner(ownerId));
+            if(!ModelState.IsValid) { return BadRequest(ModelState); }
+            return Ok(country);
+
+        }
+
     }
 }
