@@ -1,6 +1,6 @@
 ﻿using PokemonReviewApp.Models;
 
-namespace PokemonReviewApp.Repository
+namespace PokemonReviewApp.Interfaces
 {
     public interface IReviewRepository
     {
