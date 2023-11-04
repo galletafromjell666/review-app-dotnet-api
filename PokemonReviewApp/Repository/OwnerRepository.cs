@@ -8,8 +8,15 @@ namespace PokemonReviewApp.Repository
     public class OwnerRepository : IOwnerRepository
     {
         private readonly DataContext _context;
-        public OwnerRepository(DataContext context) {
+        public OwnerRepository(DataContext context)
+        {
             _context = context;
+        }
+
+        public bool CreateOwner(Owner owner)
+        {
+            _context.Add(owner);
+            return Save();
         }
 
         public Owner GetOwner(int ownerId)
@@ -25,7 +32,7 @@ namespace PokemonReviewApp.Repository
 
         public ICollection<Owner> GetPokemonOwner(int pokeId)
         {
-            return _context.PokemonOwners.Where(p => p.Pokemon.Id == pokeId).Select(o => o.Owner).ToList();    
+            return _context.PokemonOwners.Where(p => p.Pokemon.Id == pokeId).Select(o => o.Owner).ToList();
         }
 
         public ICollection<Pokemon> GetPokemonByOwner(int ownerId)
@@ -36,6 +43,11 @@ namespace PokemonReviewApp.Repository
         public bool OwnerExists(int ownerId)
         {
             return _context.Owners.Any(o => o.Id == ownerId);
+        }
+
+        public bool Save()
+        {
+            return _context.SaveChanges() > 0;
         }
     }
 }
