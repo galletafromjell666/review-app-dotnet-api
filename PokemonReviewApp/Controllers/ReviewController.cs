@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PokemonReviewApp.Dto;
 using PokemonReviewApp.Interfaces;
 using PokemonReviewApp.Models;
+using PokemonReviewApp.Repository;
 
 namespace PokemonReviewApp.Controllers
 {
@@ -12,7 +13,7 @@ namespace PokemonReviewApp.Controllers
     {
         private readonly IReviewRepository _reviewRepository;
         private readonly IMapper _mapper;
-        
+
         public ReviewController(IReviewRepository reviewRepository, IMapper mapper)
         {
             _reviewRepository = reviewRepository;
@@ -23,8 +24,8 @@ namespace PokemonReviewApp.Controllers
         [ProducesResponseType(200, Type = typeof(IEnumerable<Review>))]
         public IActionResult GetReviews()
         {
-            var review =  _mapper.Map<List<ReviewDto>>(_reviewRepository.GetReviews());
-            if(!ModelState.IsValid)
+            var review = _mapper.Map<List<ReviewDto>>(_reviewRepository.GetReviews());
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -62,5 +63,30 @@ namespace PokemonReviewApp.Controllers
             return Ok(reviews);
         }
 
+        [HttpPost]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(400)]
+        public IActionResult CreateReview([FromBody] ReviewEditDto newReview)
+        {
+            if (newReview == null)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var reviewMap = _mapper.Map<Review>(newReview);
+            if (!_reviewRepository.CreateReview(newReview.ReviewerId, newReview.PokemonId, reviewMap))
+            {
+                ModelState.AddModelError("", "Something went wrong while saving");
+                return StatusCode(500, ModelState);
+            }
+            var createdReview = _mapper.Map<ReviewDto>(reviewMap);
+            return Ok(createdReview);
+        }
+        
     }
+
 }
