@@ -19,6 +19,12 @@ namespace PokemonReviewApp.Repository
             return Save();
         }
 
+        public bool UpdateOwner(Owner owner)
+        {
+            _context.Update(owner);
+            return Save();
+        }
+
         public Owner GetOwner(int ownerId)
         {
             return _context.Owners.Where(o => o.Id == ownerId).FirstOrDefault();

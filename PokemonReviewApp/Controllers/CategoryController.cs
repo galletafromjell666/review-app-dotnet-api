@@ -54,7 +54,7 @@ namespace PokemonReviewApp.Controllers
             return Ok(pokemons);
         }
         [HttpPost]
-        [ProducesResponseType(204)]
+        [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         public IActionResult CreateCategory([FromBody] CategoryDto newCategory)
         {
@@ -71,7 +71,7 @@ namespace PokemonReviewApp.Controllers
                 ModelState.AddModelError("", "Category already Exists");
                 return StatusCode(422, ModelState);
             }
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -85,7 +85,57 @@ namespace PokemonReviewApp.Controllers
             var createdCategoryDto = _mapper.Map<CategoryDto>(categoryMap);
             //the response will inclide the new entity
             return Ok(createdCategoryDto);
+        }
 
+        [HttpPut("{categoryId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult UpdateCategory(int categoryId, [FromBody] CategoryEditDto updatedCategory)
+        {
+            if (updatedCategory == null)
+            {
+                return BadRequest(ModelState);
+            }
+            if (!_categoryRepository.CategoryExists(categoryId))
+            {
+                return NotFound();
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var editCategoryMap = _mapper.Map<Category>(updatedCategory);
+            editCategoryMap.Id = categoryId;
+            if (!_categoryRepository.UpdateCategory(editCategoryMap))
+            {
+                ModelState.AddModelError("", "Something went wrong updating category");
+                return StatusCode(500, ModelState);
+            }
+            var updatedCategoryDto = _mapper.Map<CategoryDto>(editCategoryMap);
+            return Ok(updatedCategoryDto);
+        }
+
+        [HttpDelete("{categoryId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public IActionResult DeleteCategory(int categoryId)
+        {
+            if (!_categoryRepository.CategoryExists(categoryId))
+            {
+                return NotFound();
+            }
+            var categoryToDelete = _categoryRepository.GetCategory(categoryId);
+            if (!_categoryRepository.DeleteCategory(categoryToDelete))
+            {
+                ModelState.AddModelError("", "Error deleting category");
+                return StatusCode(500, ModelState);
+            }
+            var mapDeletedCategory = _mapper.Map<CategoryDto>(categoryToDelete);
+            return Ok(mapDeletedCategory);
         }
     }
 }
